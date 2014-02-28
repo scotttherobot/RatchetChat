@@ -121,7 +121,8 @@ class Thread {
    /**
     * Invites/joins a user to a thread.
     */
-   public function addUser($userid) {
+   public function addUser($userid = false) {
+      $userid = $userid ?: $this->userid;
       DB::insert('participants', [
          'threadid' => $this->threadid,
          'userid' => $userid,
@@ -129,6 +130,17 @@ class Thread {
       ]);
       $this->notify("USER_JOINED");
       return DB::insertId();
+   }
+
+   /**
+    * Removes a user from the thread.
+    */
+   public function leave($userid = false) {
+      $userid = $userid ?: $this->userid;
+      DB::update('participants', [
+         'left' => time(),
+         'status' => 'LEFT',
+      ], 'userid = %i', $userid);
    }
 
    /**
@@ -149,7 +161,7 @@ class Thread {
       $on = $on ? 'ON' : 'OFF';
       DB::update('participants', [
          'notifications' => $on,
-      ]);
+      ], "userid = %i", $userid);
    }
 
    /**
