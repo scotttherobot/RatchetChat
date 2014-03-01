@@ -114,6 +114,16 @@ $app->post('/threads/:id/join/', function ($id) {
 
 $app->post('/notificationregister/', function () {
    $res = new APIResponse(['user']);
+   $params = $res->params($_POST, ['uuid', 'type']);
+
+   if (PushLib::subscribe($res->userid, $params['type'], $params['uuid'])) {
+      $res->addData([
+         'message' => 'You were successfully subscribed.',
+         'uuid' => $params['uuid'],
+      ]);
+   } else {
+      $res->error("There was a problem subscribing.");
+   }
 
    $res->respond();
 });

@@ -4,6 +4,3 @@
 [submodule "3P/php-beanstalk"]
 	path = 3P/php-beanstalk
 	url = git@github.com:iFixit/php-beanstalk.git
-[submodule "3P/pgp-gcm"]
-	path = 3P/pgp-gcm
-	url = git@github.com:lkorth/php-gcm.git

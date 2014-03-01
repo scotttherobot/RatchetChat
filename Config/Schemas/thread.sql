@@ -46,11 +46,12 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE TABLE IF NOT EXISTS subscriptions (
    `userid` INT(11) NOT NULL,
    `type` ENUM('GCM','IOS') NOT NULL,
-   `uuid` TEXT,
+   `uuid` VARCHAR(255),
    `notifications` ENUM('ON','OFF') NOT NULL DEFAULT 'ON',
-   PRIMARY KEY (`userid`),
+   KEY (`userid`),
    KEY (`type`),
    KEY (`notifications`),
+   UNIQUE (`userid`, `uuid`),
    CONSTRAINT `subscriptions_user_fk` FOREIGN KEY (`userid`) REFERENCES users (`userid`) ON UPDATE CASCADE ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

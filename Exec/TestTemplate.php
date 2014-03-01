@@ -14,4 +14,4 @@ DB::$password = 'anncoulter';
 DB::$dbName = 'chat';
 DB::$host = 'localhost';
 
-$user = getenv("USER");
+print_r(DB::query("select * from subscriptions"));

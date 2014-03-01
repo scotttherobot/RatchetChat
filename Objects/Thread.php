@@ -170,9 +170,14 @@ class Thread {
     * OVERRIDE AND IMPLEMENT THIS IN CLASS EXTENSION???
     */
    public function notify($action) {
+      $data = [
+         'event' => $action,
+         'threadid' => $this->threadid,
+      ];
+
       $beanstalk = new Socket_Beanstalk();
       $beanstalk->connect();
-      $beanstalk->put(23,0,500,$action);
+      $beanstalk->put(23,0,500,json_encode($data));
       $beanstalk->disconnect();
    }
 }
