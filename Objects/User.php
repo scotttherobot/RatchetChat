@@ -87,7 +87,10 @@ class User {
     * signup()
     * Adds a user to the database, logs them in, too.
     */
-   public static function signup($data) {
+   public static function signup($d) {
+      $userid = AuthLib::newUser($d['username'], $d['password'],
+         $d['firstname'], $d['lastname'], $d['email']);
+      return self::byId($userid);
    }
 
    /**

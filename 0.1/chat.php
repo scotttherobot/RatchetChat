@@ -10,14 +10,17 @@ $app->get('/threads/', function () {
 });
 
 /**
- * Creates a new thread.
+ * Creates a new thread with a single other user in it
  */
 $app->post('/threads/', function () {
    $res = new APIResponse(['user']);
-   $params = $res->params($_POST, ['name']);
+   $params = $res->params($_POST, ['name', 'userid']);
 
    $thread = Thread::newThread($params['name'], $res->userid);
    if ($thread) {
+      // Add the other user.
+      $thread->addUser($params['userid']);
+      // Get the meta info.
       $meta = $thread->meta();
       $res->addData($meta);
    } else {
