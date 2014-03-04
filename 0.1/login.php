@@ -5,10 +5,22 @@
  * Will also log the account in.
  */
 $app->post('/register/', function () {
-   // TODO: Use Chris's fancy functions.
-   $username = $_POST['username'];
-   $password = $_POST['password'];
-   $email = $_POST['email'];
+   $res = new APIResponse(['public']);
+   $params = $res->params($_POST, ['firstname','lastname','email',
+      'username','password']);
+
+   $user = User::signup($params);
+
+   if ($user) {
+      $res->addData([
+         'username' => $user->username,
+         'userid' => $user->userid,
+      ]);
+   } else {
+      $res->error("Oh no! Registration failed!");
+   }
+
+   $res->respond();
 });
 
 /**
@@ -25,7 +37,9 @@ $app->post('/login/', function () {
 
    if ($user) {
       $key = $user->key;
-      $res->addData(['key' => $key]);
+      $res->addData([
+         'key' => $key,
+      ]);
    } else {
       $res->error("There was a problem logging you in.");
    }
@@ -38,4 +52,12 @@ $app->post('/login/', function () {
  */
 $app->post('/logout/', function () {
 
+});
+
+/**
+ * A endpoint just to report whether the user is logged in.
+ */
+$app->get('/test/', function () {
+   $res = new APIResponse(['user']);
+   $res->respond();
 });

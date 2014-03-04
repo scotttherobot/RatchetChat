@@ -32,7 +32,9 @@ while (true) {
       WHERE s.notifications = 'ON'
        AND p.notifications = 'ON'
        AND p.status != 'LEFT'
-       AND p.threadid = %i", $data->threadid);
+       AND p.threadid = %i
+       AND s.userid != %i
+       AND s.type = 'GCM'", $data->threadid, $data->userid);
 
    $registrationIds = [];
    foreach ($subs as $sub) {
@@ -40,8 +42,10 @@ while (true) {
       $registrationIds[] = $sub['uuid'];
    }
    $messageData = [
-      'message' => "New activity in thread " . $subs[0]['name'],
+      'title' => $data->title,
+      'message' => $data->message,
       'threadid' => $data->threadid,
+      'threadname' => $subs[0]['name'],
    ];
 
    $response = PushLib::sendNotification(

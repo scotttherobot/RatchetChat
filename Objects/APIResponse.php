@@ -49,7 +49,7 @@ class APIResponse {
       $pulled = [];
       foreach ($params as $param) {
          $val = idx($array, $param, NULL);
-         if (is_null($val)) {
+         if (is_null($val) || empty(trim($val))) {
             $errors[] = "Missing parameter $param.";
          } else {
             $pulled[$param] = $val;

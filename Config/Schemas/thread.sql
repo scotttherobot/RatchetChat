@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS participants (
    `left` INT(11) DEFAULT NULL,
    KEY (`threadid`),
    KEY (`userid`),
-   UNIQUE (`userid`,`threadid`,`joined`),
+   -- TODO: FIgure out this unique!!
+   UNIQUE (`userid`,`threadid`,``),
    CONSTRAINT `participant_user_fk` FOREIGN KEY (`userid`) REFERENCES users (`userid`) ON UPDATE CASCADE,
    CONSTRAINT `participant_thread_fk` FOREIGN KEY (`threadid`) REFERENCES threads (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

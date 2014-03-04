@@ -11,7 +11,7 @@
  */
 class SessionManager {
 
-   private static $sessionLength = "+1 day";
+   private static $sessionLength = "+2 days";
 
    /**
     * A method to return the current session for 

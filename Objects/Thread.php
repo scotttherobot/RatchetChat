@@ -41,6 +41,19 @@ class Thread {
    }
 
    /**
+    * Returns a single element of the query above
+    */
+   public static function myThread($userid, $threadid) {
+      return DB::queryFirstRow("
+         SELECT p.*, t.name
+         FROM participants p
+         JOIN threads t ON (p.`threadid` = t.`id`)
+         WHERE userid = %i
+         AND threadid = %i
+         AND status != 'LEFT'", $userid, $threadid);
+   }
+
+   /**
     * Instantiate a thread object.
     * The userid is the user on behalf of whom to act.
     */
@@ -114,7 +127,7 @@ class Thread {
          'medid' => idx($message, 'medid', NULL),
          'sent' => time(),
       ]);
-      $this->notify("MESSAGE_SENT");
+      $this->notify("MESSAGE_SENT", idx($message, 'body', 'New Message'));
       return DB::insertId();
    }
 
@@ -123,12 +136,13 @@ class Thread {
     */
    public function addUser($userid = false) {
       $userid = $userid ?: $this->userid;
+      // TODO: Check to see if the user is already in the thread!!
       DB::insert('participants', [
          'threadid' => $this->threadid,
          'userid' => $userid,
          'joined' => time(),
       ]);
-      $this->notify("USER_JOINED");
+      $this->notify("USER_JOINED", "added you to a thread");
       return DB::insertId();
    }
 
@@ -140,7 +154,16 @@ class Thread {
       DB::update('participants', [
          'left' => time(),
          'status' => 'LEFT',
-      ], 'userid = %i', $userid);
+      ], 'userid = %i AND threadid = %i', $userid, $this->threadid);
+   }
+   
+   /**
+    * Renames a thread
+    */
+   public function rename($name) {
+      DB::update('threads', [
+         'name' => $name,
+      ], 'id = %i', $this->threadid);
    }
 
    /**
@@ -169,10 +192,15 @@ class Thread {
     * push notifications turned on.
     * OVERRIDE AND IMPLEMENT THIS IN CLASS EXTENSION???
     */
-   public function notify($action) {
+   public function notify($action, $message = 'New Activity') {
+      $user = User::byId($this->userid);
+
       $data = [
          'event' => $action,
          'threadid' => $this->threadid,
+         'userid' => $this->userid,
+         'title' => $user->username,
+         'message' => $message,
       ];
 
       $beanstalk = new Socket_Beanstalk();

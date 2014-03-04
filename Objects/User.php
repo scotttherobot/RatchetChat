@@ -106,6 +106,20 @@ class User {
       return $user;
    }
 
+   /**
+    * search($term)
+    * Searches for users by some term (first name, last name, username).
+    */
+   public static function search($term) {
+      return DB::query("
+         SELECT firstname, lastname, username, userid, email
+         FROM users
+         WHERE firstname LIKE %ss
+         OR lastname LIKE %ss
+         OR username LIKE %ss
+         GROUP BY username", $term, $term, $term);
+   }
+
    /******************************
     * OBJECT FUNCTIONS
     ******************************/
