@@ -1,6 +1,0 @@
-[submodule "3P/Slim"]
-	path = 3P/Slim
-	url = https://github.com/codeguy/Slim.git
-[submodule "3P/php-beanstalk"]
-	path = 3P/php-beanstalk
-	url = git@github.com:iFixit/php-beanstalk.git

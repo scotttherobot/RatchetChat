@@ -1,8 +1,9 @@
 <?php
 // Get Slim in here
-require '3P/Slim/Slim/Slim.php';
+//require '3P/Slim/Slim/Slim.php';
+require 'vendor/autoload.php';
 // Beanstalk
-require_once('3P/php-beanstalk/src/Socket/Beanstalk.php');
+//require_once('3P/php-beanstalk/src/Socket/Beanstalk.php');
 // And our libraries
 foreach (glob("Libs/*.php") as $filename) {
    include $filename;
@@ -12,7 +13,7 @@ foreach (glob("Objects/*.php") as $filename) {
    include $filename;
 }
 
-\Slim\Slim::registerAutoloader();
+//\Slim\Slim::registerAutoloader();
 $app = new \Slim\Slim();
 
 // Configure the DB singleton
