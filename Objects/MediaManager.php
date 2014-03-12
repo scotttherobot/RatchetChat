@@ -24,6 +24,27 @@ class MediaManager {
          WHERE userid = %i", $this->userid);
    }
 
+   /**
+    * Generates a url path.
+    */
+   public function src($name) {
+      if ($name) {
+         return "/". self::$uploadDir ."/".$name;
+      }
+      else
+         return false;
+   }
+
+   /**
+    * Get the metadata on a file.
+    */
+   public function meta($medid) {
+      return DB::queryFirstRow("
+         SELECT *
+         FROM media
+         WHERE medid = %i", $medid);
+   }
+
    public function upload($files) {
       /**
        * Upload procedure:
@@ -42,11 +63,11 @@ class MediaManager {
          try {
             $fileObj = new File($name, $this->filesystem);
             $fileObj->setContent(file_get_contents($tmpPath));
-            $uploaded[] = $this->newMediaEntry($name, 'IMAGE');
          }
          catch (Exception $e) {
             Utils::logMe("Exception!! OH NO!");
          }
+         $uploaded[] = $this->newMediaEntry($name, 'IMAGE');
       }
       return $uploaded;
    }
@@ -61,6 +82,7 @@ class MediaManager {
          'date' => $date,
          'type' => $type,
          'fname' => $name,
+         'src' => $this->src($name),
       ]);
       $medid = DB::insertId();
       return $medid ? [
@@ -68,6 +90,7 @@ class MediaManager {
          'date' => $date,
          'type' => $type,
          'fname' => $name,
+         'src' => $this->src($name),
       ] : false;
    }
 

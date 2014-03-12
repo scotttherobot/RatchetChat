@@ -23,3 +23,13 @@ $app->post('/media/', function () {
 
    $res->respond();
 });
+
+$app->get('/media/:medid/', function ($medid) {
+   $res = new APIResponse(['user']);
+   $media = new MediaManager($res->userid);
+
+   $res->addData(['meta' => $media->meta($medid)]);
+
+   $res->respond();
+   
+});
