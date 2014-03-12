@@ -1,28 +1,25 @@
 <?php
 
-use Gaufrette\Filesystem;
-use Gaufrette\File;
-use Gaufrette\Adapter\Local as LocalAdapter;
-
 $app->get('/media/', function () {
+   $res = new APIResponse(['user']);
+   $media = new MediaManager($res->userid);
+
+   $res->addData(['media' => $media->media()]);
+
+   $res->respond();
    
-   $adapter = new LocalAdapter("media");
-   $filesystem = new Filesystem($adapter);
-
-   print_r($filesystem->keys());
-
 });
 
 $app->post('/media/', function () {
+   $res = new APIResponse(['user']);
+   $media = new MediaManager($res->userid);
 
-   $adapter = new LocalAdapter("media");
-   $filesystem = new Filesystem($adapter);
+   if($uploaded = $media->upload($_FILES)) {
+      $res->addData(['uploaded' => $uploaded]);
+   }
+   else {
+      $res->error("There was a problem uploading.");
+   }
 
-   $tmpPath = $_FILES["file"]["tmp_name"];
-   $name = $_FILES["file"]["name"];
-
-   $file = new File($name, $filesystem);
-   $image = file_get_contents($tmpPath);
-   $file->setContent($image);
-
+   $res->respond();
 });
