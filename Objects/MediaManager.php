@@ -63,11 +63,11 @@ class MediaManager {
          try {
             $fileObj = new File($name, $this->filesystem);
             $fileObj->setContent(file_get_contents($tmpPath));
+            $uploaded[] = $this->newMediaEntry($name, 'IMAGE');
          }
          catch (Exception $e) {
             Utils::logMe("Exception!! OH NO!");
          }
-         $uploaded[] = $this->newMediaEntry($name, 'IMAGE');
       }
       return $uploaded;
    }
