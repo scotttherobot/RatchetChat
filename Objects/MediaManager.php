@@ -13,7 +13,7 @@ class MediaManager {
 
    function __construct($userid) {
       $this->userid = $userid;
-      $this->adapter = new LocalAdapter("media");
+      $this->adapter = new LocalAdapter(static::$uploadDir);
       $this->filesystem = new Filesystem($this->adapter);
    }
 
