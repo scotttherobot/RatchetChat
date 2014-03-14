@@ -41,7 +41,9 @@ class UserLocation {
     */
    public function nearbyUsers($limit = 25) {
       $nearby = DB::query("
-         SELECT *,
+         SELECT s.userid, s.latitude, s.longitude,
+         s.date, u.firstname, u.lastname, u.username,
+         u.email, p.about, p.avatar, m.src,
          ( 3959 * acos( cos( radians( %d ) ) *
             cos( radians( s.`latitude` ) ) *
             cos( radians( s.`longitude` ) -
@@ -50,6 +52,9 @@ class UserLocation {
             sin( radians( s.`latitude` ) ) ) )
          AS distance
          FROM user_locations s
+         JOIN users u USING (`userid`)
+         LEFT JOIN profiles p USING (`userid`)
+         LEFT JOIN media m ON (p.avatar = m.medid)
          WHERE s.userid != %i
           AND s.date = (
             SELECT max(date)
