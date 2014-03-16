@@ -44,26 +44,25 @@ class UserLocation {
          SELECT s.userid, s.latitude, s.longitude,
          s.date, u.firstname, u.lastname, u.username,
          u.email, p.about, p.avatar, m.src,
-         ( 3959 * acos( cos( radians( %d ) ) *
+         ROUND ( ( 3959 * acos( cos( radians( %d ) ) *
             cos( radians( s.`latitude` ) ) *
             cos( radians( s.`longitude` ) -
             radians( %d ) ) +
             sin( radians( %d ) ) *
-            sin( radians( s.`latitude` ) ) ) )
+            sin( radians( s.`latitude` ) ) ) ), 5)
          AS distance
          FROM user_locations s
          JOIN users u USING (`userid`)
          LEFT JOIN profiles p USING (`userid`)
          LEFT JOIN media m ON (p.avatar = m.medid)
-         WHERE s.userid != %i
-          AND s.date = (
-            SELECT max(date)
-            FROM user_locations ul
-            WHERE ul.userid = s.userid
-          )
-         ORDER BY distance DESC
+         WHERE s.date = (
+           SELECT max(date)
+           FROM user_locations ul
+           WHERE ul.userid = s.userid
+         )
+         ORDER BY distance ASC
          LIMIT %i", 
-         $this->latitude, $this->longitude, $this->latitude, $this->userid, $limit);
+         $this->latitude, $this->longitude, $this->latitude, $limit);
       return $nearby;
    }
 

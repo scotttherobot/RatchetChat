@@ -108,9 +108,10 @@ class Thread {
     */
    public function newSince($time) {
       return DB::query("
-         SELECT m.id, m.body, m.sent, m.medid, u.username, u.userid
+         SELECT m.id, m.body, m.sent, m.medid, u.username, u.userid, p.src
          FROM messages m
          JOIN users u USING (`userid`)
+         LEFT JOIN media p ON (m.medid = p.medid)
          WHERE threadid = %i
          AND sent > %i
          ORDER BY sent ASC", $this->threadid, $time);

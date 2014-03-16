@@ -1,4 +1,7 @@
 <?php
+// Autoload dependencies.
+include '../vendor/autoload.php';
+
 // And our libraries
 foreach (glob("../Libs/*.php") as $filename) {
    include $filename;
@@ -7,8 +10,6 @@ foreach (glob("../Libs/*.php") as $filename) {
 foreach (glob("../Objects/*.php") as $filename) {
    include $filename;
 }
-
-require_once('../3P/php-beanstalk/src/Socket/Beanstalk.php');
 
 DB::$user = 'root';
 DB::$password = 'anncoulter';
