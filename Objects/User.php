@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * A User object class.
+ * Allows for easy creation of a user and handles
+ * both browser and API authentication. 
+ * 
+ * By  Scott Vanderlind
+ * Early 2014
+ */ 
+
 class User {
 
    private static $singleton = false;
@@ -48,8 +57,9 @@ class User {
       if (!$key) return false;
 
       $user->getRowBySession($key);
-      if (!$user->loggedIn())
+      if (!$user->loggedIn()){
          return false;
+      }
 
       // Let's keep the logged in user around so we can use it
       // later/from other places.
@@ -171,7 +181,8 @@ class User {
     * The value is the api_key from the user's row.
     */
    private function writeCookie($key = false) {
-      setcookie(static::$cookieName, $key ?: $this->row['api_key']);
+      setcookie(static::$cookieName, $key ?: $this->row['api_key'],
+       time() + 86400, '/');
    }
 
    /**
