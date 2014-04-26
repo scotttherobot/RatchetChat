@@ -2,6 +2,8 @@
    "require": {
       "slim/slim": "2.*",
       "davidpersson/beanstalk": "*.*",
+      "sergeytsalkov/meekrodb": "*",
+      "intervention/image": "1.*",
       "knplabs/gaufrette": "0.1.*"
    }
 }

@@ -3,10 +3,13 @@
 use Gaufrette\Filesystem;
 use Gaufrette\File;
 use Gaufrette\Adapter\Local as LocalAdapter;
+use Intervention\Image\Image;
 
 class MediaManager {
 
    private static $uploadDir = "media";
+   // Turn version generation on or off.
+   private static $generateVersions = false;
    private $adapter;
    private $filesystem;
    public $userid;
@@ -20,16 +23,47 @@ class MediaManager {
       return $src;
    }
 
+   public static function queueVersionGeneration(array $medids = []) {
+      $beanstalk = new Socket_Beanstalk();
+      $beanstalk->connect();
+      $beanstalk->choose('media');
+      foreach ($medids as $medid) {
+         $job = [
+            'medid' => $medid,
+         ];
+         $beanstalk->put(23, 0, 500, json_encode($job));
+      }
+      $beanstalk->disconnect();
+   }
+
    function __construct($userid) {
       $this->userid = $userid;
-      $this->adapter = new LocalAdapter(static::$uploadDir);
-      $this->filesystem = new Filesystem($this->adapter);
+      $this->adapter = self::getAdapter();
+      $this->filesystem = self::getFilesystem($this->adapter);
+   }
+
+   // Return the Gaufrette filesystem. If $adapter is false,
+   // fetch the default one.
+   public static function getFilesystem($adapter = false) {
+      if (!$adapter)
+         $adapter = self::getAdapter();
+      return new Filesystem($adapter);
+   }
+   // Return the Gaufrette filesystem adapter.
+   // If $dir is false, use the default.
+   public static function getAdapter($dir = false) {
+      if (!$dir)
+         $dir = static::$uploadDir;
+      return new LocalAdapter($dir);
    }
 
    public function media() {
       return DB::query("
-         SELECT medid, date, type, fname, src
-         FROM media
+         SELECT m.medid, m.date, m.type, m.fname, m.src,
+          ms.small_src, ms.medium_src
+         FROM media m
+         LEFT JOIN media_sizes ms
+         ON m.medid = ms.medid
          WHERE userid = %i", $this->userid);
    }
 
@@ -72,7 +106,10 @@ class MediaManager {
          try {
             $fileObj = new File($name, $this->filesystem);
             $fileObj->setContent(file_get_contents($tmpPath));
-            $uploaded[] = $this->newMediaEntry($name, 'IMAGE');
+            $upl = $this->newMediaEntry($name, 'IMAGE');
+            if (self::$generateVersions)
+               self::queueVersionGeneration([$upl['medid']]);
+            $uploaded[] = $upl;
          }
          catch (Exception $e) {
             Utils::logMe("Exception!! OH NO!");
