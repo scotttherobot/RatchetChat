@@ -54,6 +54,50 @@ class Thread {
    }
 
    /**
+    * Returns open threads that are happening between two
+    * particular users
+    *    $strict => excludes threads with other (third-party) participants
+    */
+   public static function threadsBetween($userA, $userB, $strict = true) {
+      $strictAugment = '';
+      if ($strict) {
+         // If we are going to be strict, make sure the number of total
+         // enrollments into a thread equals the number of enrollments
+         // we have selected with our preliminary query
+         $strictAugment = <<<EOT
+HAVING COUNT(*) = (
+   SELECT COUNT(*)
+   FROM participants pz
+   WHERE pz.threadid = pa.threadid
+   AND pz.userid != pa.userid
+   AND pz.status = 'IN'
+)
+EOT;
+      }
+      // Take the participants table, select where the
+      $between_q = <<<EOT
+SELECT pa.userid, t.id, t.name, (
+   SELECT GROUP_CONCAT(userid)
+   FROM participants px
+   WHERE px.status = 'IN'
+    AND px.threadid = pa.threadid
+) as users
+FROM participants pa
+JOIN participants pb
+ ON pa.threadid = pb.threadid
+ AND pb.status = 'IN'
+ AND pb.userid = %i
+JOIN threads t
+ON t.id = pa.threadid
+WHERE pa.status = 'IN'
+ AND pa.userid = %i
+GROUP BY pa.threadid
+$strictAugment
+EOT;
+      return DB::query($between_q, $userB, $userA);
+   }
+
+   /**
     * Instantiate a thread object.
     * The userid is the user on behalf of whom to act.
     */

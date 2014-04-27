@@ -41,6 +41,33 @@ $app->post('/threads/', function () {
 });
 
 /**
+ * Find a conversation you are having with another user.
+ * GET Params:
+ *    private => Are we looking for *only* private, one-on-one convos?
+ */
+$app->get('/threads/find/', function () {
+   $res = new APIResponse(['user']);
+   // We need to use 'user' because 'userid' is alreay a key of a standard
+   // APIResponse.
+   $params = $res->params($_GET, ['user']);
+   $params['private'] = idx($_GET, 'private', false);
+
+   $userList = [$res->userid, $params['user']];
+   // Set up the response with more data.
+   $res->addData([
+      'users' => $userList,
+      // lol LIFEHACKKKK to cast to boolean
+      'private' => !!$params['private'],
+   ]);
+
+   // Now, query for the thread between the current user and the specified user.
+   $threads = Thread::threadsBetween($res->userid, $params['user'], !!$params['private']);
+   $res->addData(['threads' => $threads]);
+
+   $res->respond();
+});
+
+/**
  * Returns the contents of a particular thread.
  * Use the ?since= paramater with a unix timestamp
  * to only return messages that have been added since
