@@ -20,6 +20,7 @@ $gcmApiKey = "AIzaSyCmsCJ334CHytuFIOW97DXLGpDs_G0jueQ";
 
 $beanstalk = new Socket_Beanstalk();
 $beanstalk->connect();
+$beanstalk->watch('push');
 
 while (true) {
    $job = $beanstalk->reserve();

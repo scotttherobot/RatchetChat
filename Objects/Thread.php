@@ -252,6 +252,7 @@ EOT;
 
       $beanstalk = new Socket_Beanstalk();
       $beanstalk->connect();
+      $beanstalk->choose('push');
       $beanstalk->put(23,0,500,json_encode($data));
       $beanstalk->disconnect();
    }
