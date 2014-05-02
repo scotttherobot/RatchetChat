@@ -11,20 +11,7 @@
 
 class AuthLib {
    
-   private static $app = null;
-   private static $userid = null;
    private static $cookieName = 'token';
-   private static $user = null;
-   private static $type = null;
-
-   /**
-    * Capture the app instance in case we want to use it later.
-    */
-   public static function init($app) {
-      self::$app = $app;
-      self::$user = User::auth();
-      self::$userid = self::$user->userid;
-   }
 
    // This allows us to have "public" endpoints that
    // use the APIResponse library.
@@ -60,16 +47,6 @@ class AuthLib {
       } else {
          return false;
       }
-   }
-
-   /**
-    * Returns all of the users.
-    */
-   public static function listUsers() {
-      $q_allUsers = "
-         SELECT *
-         FROM users";
-      return DB::query($q_allUsers);
    }
 
    /**
