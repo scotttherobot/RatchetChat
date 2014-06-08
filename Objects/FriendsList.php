@@ -23,15 +23,34 @@ class FriendsList {
 
    /**
     * Get the user's friends roster.
+    * TODO: Limits and offsets
     */
    public function roster() {
-      return DB::query("
+      $rows = DB::query("
          SELECT *
          FROM friendships
-         WHERE usera = %i
-          OR userb = %i
+         WHERE (usera = %i
+          OR userb = %i)
          AND status = 'ACCEPTED'",
          $this->userid, $this->userid);
+
+      // Take our weird data structure and map it
+      // to something that's uniform.
+      // TODO: investigate the efficiency of this.
+      // I think it's O(n) right now :/
+      $roster = [];
+      foreach ($rows as $fr) {
+         $friend = [];
+         if ($fr['usera'] == $this->userid) {
+            $friend['userid'] = $fr['userb'];
+         } else {
+            $friend['userid'] = $fr['usera'];
+         }
+         $friend['status'] = $fr['status'];
+         $roster[] = array_merge($friend, User::meta($friend['userid']));
+      }
+
+      return $roster;
    }
 
    /**
@@ -41,22 +60,32 @@ class FriendsList {
     * Params:
     *    userid = the user to add
     *    force = skip the request/approve step.
+    * Returns
+    *    true if a request was made
+    *    the user's id if a pending request was confirmed.
     */
    public function addFriend($userid, $force = false) {
-      // Check to see if there's a pending request.
+      // Check to see if there's a pending request incoming.
       // If there is, "accept" it.
       if ($this->requestFrom($userid)) {
          $this->acceptRequest($userid);
          return $userid;
       }
-      
-      // If not, insert a new row.
-      $status = $force ? 'ACCEPTED' : 'PENDING';
-      DB::insert('friendships', [
-         'usera' => $this->userid,
-         'userb' => $userid,
-         'status' => $status,
-      ]);
+
+      // If we're not already friends with this person, and we don't already
+      // have an outstanding request TO them, then go ahead and add them.
+      // TODO: See if there's a rejected request and if there is, deal.
+      if (!$this->isFriendsWith($userid) && !$this->requestTo($userid)) {
+         // If not, insert a new row.
+         $status = $force ? 'ACCEPTED' : 'PENDING';
+         DB::insert('friendships', [
+            'usera' => $this->userid,
+            'userb' => $userid,
+            'status' => $status,
+         ]);
+         return $userid;
+      }
+      return false;
    }
 
    /**
@@ -72,14 +101,18 @@ class FriendsList {
 
    /**
     * Removes a friend from the friends list.
-    * Just updates the relationship row to be 'removed'
+    * Just updates the relationship row to be 'removed',
+    * but is conscious of requests. If there's a pending request,
+    * it'll reject it.
     */
    public function removeFriend($userid) {
-      return DB::update('friendships', [
-         'status' => 'REMOVED',
+      $status = $this->requestFrom($userid) ? 'REJECTED' : 'REMOVED';
+      DB::update('friendships', [
+         'status' => $status,
       ], "(usera = %i AND userb = %i)
            OR (userb = %i AND usera = %i)",
       $this->userid, $userid, $userid, $this->userid);
+      return $status;
    }
 
    /**
@@ -122,6 +155,19 @@ class FriendsList {
           AND status = 'PENDING'",
          $userid, $this->userid);
    }
+   
+   /**
+    * Returns true if there is a pending request to a user.
+    */
+   public function requestTo($userid) {
+      return !!DB::queryFirstRow("
+         SELECT *
+         FROM friendships
+         WHERE usera = %i
+          AND userb = %i
+          AND status = 'PENDING'",
+         $this->userid, $userid);
+   }
 
    /**
     * Returns true if $this->userid and the param user
@@ -134,10 +180,12 @@ class FriendsList {
       return !!DB::queryFirstRow("
          SELECT *
          FROM friendships
-         WHERE usera = %i
-          AND userb = %i
+         WHERE (usera = %i
+            AND userb = %i)
+         OR (usera = %i
+            AND userb = %i)
           AND status = 'ACCEPTED'",
-         $userid, $this->userid);
+         $userid, $this->userid, $this->userid, $userid);
    }
 
    /**

@@ -130,6 +130,33 @@ class User {
          GROUP BY username", $term, $term, $term);
    }
 
+   /**
+    * UserMeta
+    * Returns metadat on a list of users.
+    */
+   public static function usersMeta($userids = []) {
+      return DB::query("
+         SELECT firstname, lastname, username, userid, email, ava.src as avatar
+         FROM users u
+         LEFT JOIN profiles pro ON (u.userid = pro.userid)
+         LEFT JOIN media ava ON (pro.avatar = ava.medid)
+         WHERE userid IN %li", $userids);
+   }
+
+   /**
+    * User Meta
+    * Returns metadat on a single user
+    */
+   public static function meta($userid) {
+      return DB::queryFirstRow("
+         SELECT u.firstname, u.lastname, u.username, 
+         u.userid, u.email, ava.src as avatar
+         FROM users u
+         LEFT JOIN profiles pro ON (u.userid = pro.userid)
+         LEFT JOIN media ava ON (pro.avatar = ava.medid)
+         WHERE u.userid = %i", $userid);
+   }
+
    /******************************
     * OBJECT FUNCTIONS
     ******************************/

@@ -34,10 +34,18 @@ class APIResponse {
          }
       }
       if (!$auth) {
+         $this->statusCode(401);
          $groups = implode(" or ", $allowed);
          $this->error("Unauthorized. You must be a $groups to use this endpoint.");
          $this->respond();
       }
+   }
+
+   /**
+    * Set the response code.
+    */
+   public function statusCode($code) {
+      http_response_code($code);
    }
 
    /**
