@@ -10,6 +10,8 @@ CREATE TABLE IF NOT EXISTS games (
    `status` ENUM('OPEN', 'TIMEOUT', 'COMPLETE'),
    `starts` INT(11) NOT NULL,
    `ends` INT(11) NOT NULL,
+   `updated_at` INT(11) DEFAULT NULL,
+   `created_at` INT(11) DEFAULT NULL,
    PRIMARY KEY (`gameid`),
    KEY (`userid`),
    KEY (`status`),
@@ -20,8 +22,12 @@ CREATE TABLE IF NOT EXISTS games (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS game_participants (
+   `participantid` INT(11) NOT NULL AUTO_INCREMENT,
    `gameid` INT(11) NOT NULL,
+   `updated_at` INT(11) DEFAULT NULL,
+   `created_at` INT(11) DEFAULT NULL,
    `userid` INT(11) NOT NULL,
+   PRIMARY KEY (`participantid`),
    KEY (`gameid`),
    CONSTRAINT `game_participant_user_fk` FOREIGN KEY (`userid`)
     REFERENCES users (`userid`)
@@ -39,6 +45,8 @@ CREATE TABLE IF NOT EXISTS game_submissions (
    `userid` INT(11) NOT NULL,
    `medid` INT(11) NOT NULL,
    `time` INT(11) NOT NULL,
+   `updated_at` INT(11) DEFAULT NULL,
+   `created_at` INT(11) DEFAULT NULL,
    `winning` INT(1) NOT NULL DEFAULT 0,
    PRIMARY KEY(`submissionid`),
    KEY (`gameid`),

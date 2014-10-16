@@ -57,7 +57,11 @@ class APIResponse {
       $pulled = [];
       foreach ($params as $param) {
          $val = idx($array, $param, NULL);
-         if (is_null($val) || empty(trim($val))) {
+         // If it's an array, assume it's okay.  Otherwise, check if it's null
+         // or empty.
+         // TODO: If it's an array, iterate over its elements and do 
+         // trim-checks on them
+         if (!is_array($val) && (is_null($val) || empty(trim($val)))) {
             $errors[] = "Missing parameter $param.";
          } else {
             $pulled[$param] = $val;
