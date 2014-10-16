@@ -5,6 +5,5 @@
       "sergeytsalkov/meekrodb": "*",
       "intervention/image": "1.*",
       "knplabs/gaufrette": "0.1.*",
-      "illuminate/database": "*"
    }
 }
