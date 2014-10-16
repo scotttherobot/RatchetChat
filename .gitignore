@@ -1,3 +1,4 @@
 vendor
 media
 composer.lock
+*.swp
