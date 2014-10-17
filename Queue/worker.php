@@ -16,6 +16,8 @@ DB::$password = 'anncoulter';
 DB::$dbName = 'chat';
 DB::$host = 'localhost';
 
+# TODO: Read this from an ENV variable and get a new key.
+# As of this commit I've voided this key in the GCM console.
 $gcmApiKey = "AIzaSyCmsCJ334CHytuFIOW97DXLGpDs_G0jueQ";
 
 $beanstalk = new Socket_Beanstalk();
