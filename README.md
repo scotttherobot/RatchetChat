@@ -12,6 +12,7 @@ had planned to eventually create an iOS client as well). The backend is simple
 PHP with few endpoints, though the app is relatively full-featured.
 
 Highlights:
+
 * Threads can have any number of participants.
 * Threads can be renamed.
 * Users can be invited to threads at any time.
